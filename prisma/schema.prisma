@@ -1,0 +1,61 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id    String @id @default(cuid())
+  email String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password Password?
+  notes    Note[]
+
+  firstName      String?
+  lastName       String?
+  title          String?
+  HolidayRequest HolidayRequest[]
+}
+
+model Password {
+  hash String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+}
+
+model Note {
+  id    String @id @default(cuid())
+  title String
+  body  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+}
+
+model HolidayRequest {
+  id           String      @id @default(cuid())
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       String
+  fromDate     DateTime
+  toDate       DateTime
+  numberOfDays Int
+  type         HolidayType @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  typeId       String
+}
+
+model HolidayType {
+  id             String           @id @default(cuid())
+  name           String
+  description    String
+  HolidayRequest HolidayRequest[]
+}
